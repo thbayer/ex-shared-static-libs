@@ -45,7 +45,7 @@ $(LIB_SHARED): $(OBJS_PIC)
 
 # Build helloworld with static lib
 helloworld-static: helloworld.o $(LIB_STATIC)
-	$(CC) -o $@ $< -L. -lm -ltest
+	$(CC) -o $@ $< -L. -ltest -lm
 
 # Build helloworld with shared lib
 helloworld-shared: helloworld.o $(LIB_SHARED)
