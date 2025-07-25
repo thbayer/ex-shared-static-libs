@@ -6,12 +6,12 @@ CROSS_COMPILE ?=
 # := immediate assignment, the value is evaluated right away, at the time the variable is defined
 # = lazy (deferred) assignment, the value is evaluated when the variable is used, not when it's defined
 
-CC := $(CROSS_COMPILE)gcc
-AR := $(CROSS_COMPILE)ar
-ARFLAGS := rcs
-CFLAGS := -Wall -Wextra -O2
-PICFLAGS = -fPIC
-LDFLAGS_SHARED := -shared
+CC ?= gcc
+AR ?= ar
+ARFLAGS ?= rcs
+CFLAGS ?= -Wall -Wextra -O2
+PICFLAGS ?= -fPIC
+LDFLAGS_SHARED ?= -shared
 
 LIB_SHARED := libtest.so
 LIB_STATIC := libtest.a
