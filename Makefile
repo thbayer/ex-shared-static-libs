@@ -49,7 +49,7 @@ helloworld-static: helloworld.o $(LIB_STATIC)
 
 # Build helloworld with shared lib
 helloworld-shared: helloworld.o $(LIB_SHARED)
-	$(CC) -o $@ $< -L. -lm -ltest $(LDFLAGS) -Wl,-soname,litest.so.1
+	$(CC) -o $@ $< -L. -lm -ltest $(LDFLAGS) -Wl,-soname,libtest.so.1
 
 #helloworld.o: helloworld.c
 #	$(CC) $(CFLAGS) -c $< -o $@
