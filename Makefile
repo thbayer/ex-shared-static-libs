@@ -41,7 +41,7 @@ $(LIB_STATIC): $(OBJS)
 
 # Shared library
 $(LIB_SHARED): $(OBJS_PIC)
-	$(CC) $(LDFLAGS) $(LDFLAGS_SHARED) -o $@ $^ -Wl,-soname=libtest.so.1 
+	$(CC) $(LDFLAGS) $(LDFLAGS_SHARED) -o $@ $^
 
 # Build helloworld with static lib
 helloworld-static: helloworld.o $(LIB_STATIC)
