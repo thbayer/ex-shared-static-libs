@@ -12,6 +12,10 @@ ARFLAGS ?= rcs
 CFLAGS ?= -Wall -Wextra -O2
 PICFLAGS ?= -fPIC
 LDFLAGS_SHARED ?= -shared
+PREFIX ?= /usr
+BINDIR ?= $(PREFIX)/bin
+LIBDIR ?= $(PREFIX)/lib
+
 
 LIB_SHARED := libtest.so
 LIB_STATIC := libtest.a
@@ -58,3 +62,17 @@ helloworld-shared: helloworld.o $(LIB_SHARED)
 clean:
 	rm -f *.o *.pic.o *.a *.so helloworld-static helloworld-shared
 
+.PHONY: install
+
+install: all
+	# Create destination directories
+	install -d $(DESTDIR)$(BINDIR)
+	install -d $(DESTDIR)$(LIBDIR)
+
+	# Install the two helloworld binaries
+	install -m 0755 helloworld-static $(DESTDIR)$(BINDIR)/helloworld-static
+	install -m 0755 helloworld-shared $(DESTDIR)$(BINDIR)/helloworld-shared
+
+	# Install the libraries
+	install -m 0644 $(LIB_STATIC) $(DESTDIR)$(LIBDIR)/$(LIB_STATIC)
+	install -m 0755 $(LIB_SHARED) $(DESTDIR)$(LIBDIR)/$(LIB_SHARED)
