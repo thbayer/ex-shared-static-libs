@@ -12,13 +12,20 @@ ARFLAGS ?= rcs
 CFLAGS ?= -Wall -Wextra -O2
 PICFLAGS ?= -fPIC
 LDFLAGS_SHARED ?= -shared
+LDFLAGS_STATIC ?= -static
 PREFIX ?= /usr
 BINDIR ?= $(PREFIX)/bin
 LIBDIR ?= $(PREFIX)/lib
 
+# Versioned library names
+LIBNAME := libtest
+LIB_MAJOR := 1
+LIB_MINOR := 0.0
 
-LIB_SHARED := libtest.so
-LIB_STATIC := libtest.a
+LIB_SO := $(LIBNAME).so
+LIB_REAL := $(LIBNAME).so.$(LIB_MAJOR).$(LIB_MINOR)
+LIB_SONAME := $(LIBNAME).so.$(LIB_MAJOR)
+LIB_STATIC := $(LIBNAME).a
 
 OBJS := test1.o test2.o
 OBJS_PIC := test1.pic.o test2.pic.o
@@ -43,16 +50,24 @@ $(LIB_STATIC): $(OBJS)
 %.pic.o: %.c
 	$(CC) $(CFLAGS) $(PICFLAGS) -c $< -o $@ 
 
-# Shared library
-$(LIB_SHARED): $(OBJS_PIC)
-	$(CC) $(LDFLAGS) $(LDFLAGS_SHARED) -o $@ $^
+
+# Versioned shared library
+$(LIB_REAL): $(OBJS_PIC)
+	$(CC) $(LDFLAGS) $(LDFLAGS_SHARED) -Wl,-soname,$(LIB_SONAME) -o $@ $^
+
+# Symlinks
+$(LIB_SONAME): $(LIB_REAL)
+	ln -sf $(LIB_REAL) $(LIB_SONAME)
+
+$(LIB_SO): $(LIB_SONAME)
+	ln -sf $(LIB_SONAME) $(LIB_SO)
 
 # Build helloworld with static lib
 helloworld-static: helloworld.o $(LIB_STATIC)
-	$(CC) -o $@ $< -L. -lm -ltest $(LDFLAGS)
+	$(CC) $(LDFLAGS_STATIC) -o $@ $< -L. -lm -ltest $(LDFLAGS)
 
 # Build helloworld with shared lib
-helloworld-shared: helloworld.o $(LIB_SHARED)
+helloworld-shared: helloworld.o $(LIB_SO)
 	$(CC) -o $@ $< -L. -lm -ltest $(LDFLAGS) 
 
 #helloworld.o: helloworld.c
@@ -70,9 +85,15 @@ install: all
 	install -d $(DESTDIR)$(LIBDIR)
 
 	# Install the two helloworld binaries
-	install -m 0755 helloworld-static $(DESTDIR)$(BINDIR)/helloworld-static
-	install -m 0755 helloworld-shared $(DESTDIR)$(BINDIR)/helloworld-shared
+	install -m 0755 helloworld-static $(DESTDIR)$(BINDIR)/
+	install -m 0755 helloworld-shared $(DESTDIR)$(BINDIR)/
 
-	# Install the libraries
-	install -m 0644 $(LIB_STATIC) $(DESTDIR)$(LIBDIR)/$(LIB_STATIC)
-	install -m 0755 $(LIB_SHARED) $(DESTDIR)$(LIBDIR)/$(LIB_SHARED)
+	# Install the real library
+	install -m 0755 $(LIB_REAL) $(DESTDIR)$(LIBDIR)/
+	
+	# install symlinks
+	ln -sf $(LIB_REAL) $(DESTDIR)$(LIBDIR)/$(LIB_SONAME)
+	ln -sf $(LIB_SONAME) $(DESTDIR)$(LIBDIR)/$(LIB_SO)
+
+	# Install the static lib
+	install -m 0644 $(LIB_STATIC) $(DESTDIR)$(LIBDIR)/
